@@ -138,7 +138,7 @@ useradd -m -G wheel $username
 echo "$username:$userpass" | chpasswd
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
 chsh -s /usr/bin/zsh $username
-echo "echo 'Running post-install script...' && sudo postinstall.sh" >> /home/$username/.zshrc
+echo "echo 'Running post-install script...' && sudo chmod +x postinstall.sh && sudo postinstall.sh" >> /home/$username/.zshrc
 mkinitcpio -P
 grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB --modules="tpm" --disable-shim-lock
 grub-mkconfig -o /boot/grub/grub.cfg
