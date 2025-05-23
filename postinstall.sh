@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 # Post install script to make the system useful
 essentialpkgs=(git firefox ghostty neovim lf)
-suggestedpkgs=(libreoffice-still btop steam fastfetch tmux cmatrix lolcat discord gparted nautilus firefox swaybg blueberry)
+suggestedpkgs=(libreoffice-still btop steam fastfetch tmux cmatrix lolcat discord gparted nautilus firefox swaybg blueberry gnome-shell-extensions)
 yaypkgs=(visual-studio-code-bin spotify uxplay wlogout)
 finalchoice="gnome hyprland"
 
@@ -34,7 +34,7 @@ default() {
 
     pacman -S --needed --noconfirm git base-devel
     git clone https://aur.archlinux.org/yay-bin.git && cd yay-bin && makepkg -si --noconfirm
-    cd ~ && rm -rf yay-bin
+    cd 
 
     sudo -u liam yay -S --noconfirm "${yaypkgs[@]}" || true
 
@@ -46,6 +46,30 @@ default() {
     done
 
     cp .zshrc ~/
+
+    git clone https://github.com/Typhoonz0/archfr
+    for file in archfr/firefox-ext*; do
+        firefox "$file"
+    done
+
+    curl -LO https://github.com/catppuccin/vscode/releases/download/catppuccin-vsc-v3.17.0/catppuccin-vsc-3.17.0.vsix
+    code --install-extension catppuccin-vsc-3.17.0.vsix
+
+    curl -LO https://extensions.gnome.org/extension-data/dash-to-dockmicxgx.gmail.com.v71.shell-extension.zip
+    curl -LO https://github.com/aunetx/blur-my-shell/releases/download/v68-2/blur-my-shell@aunetx.shell-extension.zip
+    curl -LO https://github.com/tiagoporsch/restartto/releases/download/8/restartto@tiagoporsch.github.io.shell-extension.zip
+    gnome-extensions install ./custom-hot-corners-extendedG-dH.github.com.v11.shell-extension.zip
+    gnome-extensions install ./dash-to-dockmicxgx.gmail.com.v71.shell-extension.zip
+    gnome-extensions install ./restartto@tiagoporsch.github.io.shell-extension.zip
+
+    gsettings set org.gnome.desktop.background picture-uri file:///~/.config/hypr/dunes.jpg
+    gsettings set org.gnome.desktop.wm.preferences button-layout :minimize,maximize,close
+    gsettings set org.gnome.shell.extensions.system-monitor show-cpu true
+    gsettings set org.gnome.shell.extensions.system-monitor show-memory true
+    gsettings set org.gnome.shell.extensions.system-monitor show-swap true
+
+    cd ~ && rm -rf archfr yay-bin blur-my-shell@aunetx.shell-extension.zip dash-to-dockmicxgx.gmail.com.v71.shell-extension.zip catppuccin-vsc-3.17.0.vsix
+
 }
 
 finalize() {
