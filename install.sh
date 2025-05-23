@@ -2,7 +2,7 @@
 # ArchFR - An Arch meta-distro
 
 # Downloading bonus script
-curl https://github.com/Typhoonz0/archfr/raw/refs/heads/main/postinstall.sh -o postinstall.sh 
+curl -LO https://raw.githubusercontent.com/Typhoonz0/archfr/refs/heads/main/postinstall.sh
 
 banner() {
     echo -ne "
