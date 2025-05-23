@@ -27,6 +27,7 @@ banner
 [ "$(id -u)" -eq 0 ] || { echo "Please run as root."; exit 1; }
 grep -qi '^ID=arch' /etc/os-release || { echo "Not an Arch Linux ISO!"; exit 1; }
 [ "$(cat /sys/firmware/efi/fw_platform_size 2>/dev/null)" = 64 ] || { echo "Not a UEFI system."; exit 1; }
+# [ ping -c 1 -W 2 8.8.8.8 &>/dev/null ] || { echo "You lost internet... How??"; exit 1; }
 
 # User details
 echo -ne "
@@ -48,9 +49,10 @@ diskpart() {
     # Partitioning
     lsblk
     read -rp "Select disk (e.g., /dev/sda): " DISK
-    [[ -b "$DISK" ]] || { echo "Invalid disk."; diskpart }
+    [[ -b "$DISK" ]] || { echo "Invalid disk."; diskpart; }
     read -rp "Use (a) auto partition or (b) manual? [a/b]: " autopartconfirm
 }
+
 echo -ne "
 -------------------------------------------------------------------------
                         Disk Partitioning
@@ -61,9 +63,9 @@ diskpart
 manual_part_2() {
     lsblk
     read -rp "EFI partition (e.g., /dev/sda1): " EFI_PART
-    [[ -b "$EFI_PART" ]] || { echo "Invalid EFI partition."; manual_part_2 }
+    [[ -b "$EFI_PART" ]] || { echo "Invalid EFI partition."; manual_part_2; }
     read -rp "Root partition (e.g., /dev/sda2): " ROOT_PART
-    [[ -b "$ROOT_PART" ]] || { echo "Invalid root partition. "; manual_part_2 }
+    [[ -b "$ROOT_PART" ]] || { echo "Invalid root partition. "; manual_part_2; }
     read -rp "Format EFI partition $EFI_PART? Only needed if the EFI partition was just created. (y/n): " confirmformat
     [[ "$confirmformat" =~ ^[Yy]$ ]] && mkfs.fat -F32 "$EFI_PART"
 }
