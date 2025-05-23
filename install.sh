@@ -27,7 +27,6 @@ banner
 [ "$(id -u)" -eq 0 ] || { echo "Please run as root."; exit 1; }
 grep -qi '^ID=arch' /etc/os-release || { echo "Not an Arch Linux ISO!"; exit 1; }
 [ "$(cat /sys/firmware/efi/fw_platform_size 2>/dev/null)" = 64 ] || { echo "Not a UEFI system."; exit 1; }
-[ ping -c 1 -W 2 8.8.8.8 &>/dev/null ] || { echo "You lost internet... How??"; exit 1; }
 
 # User details
 echo -ne "
