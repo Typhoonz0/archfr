@@ -122,8 +122,6 @@ fi
 genfstab -U /mnt >> /mnt/etc/fstab
 
 chmod +x postinstall.sh
-chmod +x aur.sh
-cp postinstall.sh /mnt/home/$username/postinstall.sh
 mv /mnt/etc/pacman.conf /mnt/etc/pacman.conf.bak
 cp /etc/pacman.conf /mnt/etc/pacman.conf
 
@@ -145,6 +143,7 @@ mkinitcpio -P
 grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB --modules="tpm" --disable-shim-lock
 grub-mkconfig -o /boot/grub/grub.cfg
 EOF
+cp postinstall.sh /mnt/home/$username/postinstall.sh
 systemctl --root=/mnt enable NetworkManager &>/dev/null
 clear
 banner
