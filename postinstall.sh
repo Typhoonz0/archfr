@@ -4,7 +4,8 @@ essentialpkgs=(git firefox ghostty neovim lf)
 suggestedpkgs=(libreoffice-still btop steam fastfetch tmux cmatrix lolcat discord gparted nautilus firefox swaybg blueberry gnome-shell-extensions)
 yaypkgs=(visual-studio-code-bin spotify uxplay wlogout)
 finalchoice="gnome hyprland"
-
+real_user="${SUDO_USER:-$(logname)}"
+export HOME="/home/$real_user"
 minimal() {
     echo -ne "
 -------------------------------------------------------------------------
@@ -31,12 +32,17 @@ default() {
 
     pacman -Sy --noconfirm
     pacman -S --noconfirm "${essentialpkgs[@]}" "${suggestedpkgs[@]}" || true
-
+    pacman -S --noconfirm "$finalchoice"
     pacman -S --needed --noconfirm git base-devel
     git clone https://aur.archlinux.org/yay-bin.git && cd yay-bin && makepkg -si --noconfirm
     cd 
 
-    sudo -u liam yay -S --noconfirm "${yaypkgs[@]}" || true
+    cd ~   # Now this resolves to /home/$real_user
+
+    env -i HOME="$HOME" USER="$real_user" LOGNAME="$real_user" \
+    runuser -u "$real_user" -- yay -S --noconfirm "${yaypkgs[@]}" 
+
+   # sudo -u $real_user yay -S --noconfirm "${yaypkgs[@]}" || true
 
     cd ~ && git clone https://github.com/Typhoonz0/dots.git && cd dots || exit
 
@@ -47,34 +53,35 @@ default() {
 
     cp .zshrc ~/
 
-    git clone https://github.com/Typhoonz0/archfr
-    for file in archfr/firefox-ext*; do
-        firefox "$file"
-    done
+  #  --- Firefox binary not installed yet, appearently? ---
+  #  git clone https://github.com/Typhoonz0/archfr
+  #  for file in archfr/firefox-ext*; do
+  #      firefox "$file"
+  #  done
 
-    curl -LO https://github.com/catppuccin/vscode/releases/download/catppuccin-vsc-v3.17.0/catppuccin-vsc-3.17.0.vsix
-    code --install-extension catppuccin-vsc-3.17.0.vsix
+  #  curl -LO https://github.com/catppuccin/vscode/releases/download/catppuccin-vsc-v3.17.0/catppuccin-vsc-3.17.0.vsix
+  #  code --install-extension catppuccin-vsc-3.17.0.vsix
 
-    curl -LO https://extensions.gnome.org/extension-data/dash-to-dockmicxgx.gmail.com.v71.shell-extension.zip
-    curl -LO https://github.com/aunetx/blur-my-shell/releases/download/v68-2/blur-my-shell@aunetx.shell-extension.zip
-    curl -LO https://github.com/tiagoporsch/restartto/releases/download/8/restartto@tiagoporsch.github.io.shell-extension.zip
-    gnome-extensions install ./custom-hot-corners-extendedG-dH.github.com.v11.shell-extension.zip
-    gnome-extensions install ./dash-to-dockmicxgx.gmail.com.v71.shell-extension.zip
-    gnome-extensions install ./restartto@tiagoporsch.github.io.shell-extension.zip
+  #  curl -LO https://extensions.gnome.org/extension-data/dash-to-dockmicxgx.gmail.com.v71.shell-extension.zip
+  #  curl -LO https://github.com/aunetx/blur-my-shell/releases/download/v68-2/blur-my-shell@aunetx.shell-extension.zip
+  #  curl -LO https://github.com/tiagoporsch/restartto/releases/download/8/restartto@tiagoporsch.github.io.shell-extension.zip
+  #  gnome-extensions install ./custom-hot-corners-extendedG-dH.github.com.v11.shell-extension.zip
+  #  gnome-extensions install ./dash-to-dockmicxgx.gmail.com.v71.shell-extension.zip
+  #  gnome-extensions install ./restartto@tiagoporsch.github.io.shell-extension.zip
 
-    gsettings set org.gnome.desktop.background picture-uri file:///~/.config/hypr/dunes.jpg
-    gsettings set org.gnome.desktop.wm.preferences button-layout :minimize,maximize,close
-    gsettings set org.gnome.shell.extensions.system-monitor show-cpu true
-    gsettings set org.gnome.shell.extensions.system-monitor show-memory true
-    gsettings set org.gnome.shell.extensions.system-monitor show-swap true
+  #  gsettings set org.gnome.desktop.background picture-uri file:///~/.config/hypr/dunes.jpg
+  #  gsettings set org.gnome.desktop.wm.preferences button-layout :minimize,maximize,close
+  #  gsettings set org.gnome.shell.extensions.system-monitor show-cpu true
+  #  gsettings set org.gnome.shell.extensions.system-monitor show-memory true
+  #  gsettings set org.gnome.shell.extensions.system-monitor show-swap true
 
     cd ~ && rm -rf archfr yay-bin blur-my-shell@aunetx.shell-extension.zip dash-to-dockmicxgx.gmail.com.v71.shell-extension.zip catppuccin-vsc-3.17.0.vsix
 
 }
 
 finalize() {
-    [[ "$finalchoice" == *hyprland* ]] && echo "exec Hyprland" >> ~/.zshrc
-    [[ "$finalchoice" == *gnome* ]] && systemctl enable gdm &>/dev/null
+    [[ "$dechoice" =~ ^[13]$  ]] && echo "exec Hyprland" >> ~/.zshrc
+    [[ "$dechoice" =~ ^[13]$  ]] && systemctl enable gdm &>/dev/null
     echo "Finished! Press ENTER to reboot."
     read 
     reboot now 
