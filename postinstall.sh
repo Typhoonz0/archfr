@@ -1,9 +1,9 @@
 #!/usr/bin/bash
 # Post install script to make the system useful
 essentialpkgs=(git firefox ghostty neovim lf)
-suggestedpkgs=(libreoffice-still btop steam fastfetch tmux cmatrix lolcat discord gparted nautilus firefox swaybg blueberry gnome-shell-extensions)
-yaypkgs=(visual-studio-code-bin spotify uxplay wlogout)
+suggestedpkgs=(libreoffice-still btop fastfetch tmux cmatrix lolcat discord gparted nautilus firefox swaybg waybar blueberry gnome-shell-extensions)
 finalchoice=(gnome hyprland)
+dechoice=3
 real_user="${SUDO_USER:-$(logname)}"
 export HOME="/home/$real_user"
 minimal() {
@@ -24,25 +24,28 @@ minimal() {
         *) finalchoice=(none) ;;
     esac
     pacman -S --noconfirm "${essentialpkgs[@]}" || true
-    [[ "$finalchoice" != "none" ]] && pacman -S --noconfirm "${finalchoice[@]}" 
+    [[ "$finalchoice" != "none" ]] && pacman -S --noconfirm "${finalchoice[@]}" || true
 }
 
 default() {
+    essentialpkgs=(git firefox ghostty neovim lf)
+    suggestedpkgs=(libreoffice-still btop steam fastfetch tmux cmatrix lolcat discord gparted nautilus firefox swaybg waybar blueberry gnome-shell-extensions)
     declare -A map=( [fastfetch]=fastfetch [ghostty]=ghostty [hypr]=hyprland [nvim]=neovim [rofi]=rofi [tmux]=tmux [waybar]=waybar [zsh]=zsh )
 
     pacman -Sy --noconfirm
     pacman -S --noconfirm "${essentialpkgs[@]}" "${suggestedpkgs[@]}"
-    pacman -S --noconfirm "$finalchoice"
+    pacman -S --noconfirm "${finalchoice[@]}"
     pacman -S --needed --noconfirm git base-devel
-    git clone https://aur.archlinux.org/yay-bin.git && cd yay-bin 
-    cd ~   # Now this resolves to /home/$real_user
+    
+    git clone https://aur.archlinux.org/yay-bin.git && chmod 777 yay-bin && cd yay-bin 
+
     env -i HOME="$HOME" USER="$real_user" LOGNAME="$real_user" \
     runuser -u "$real_user" -- makepkg -si --noconfirm
+    cd ~   # Now this resolves to /home/$real_user
+    env -i HOME="$user_home" USER="$real_user" LOGNAME="$real_user" \
+        runuser -u "$real_user" -- yay -S --noconfirm 
     
-    env -i HOME="$HOME" USER="$real_user" LOGNAME="$real_user" \
-    runuser -u "$real_user" -- yay -S --noconfirm "${yaypkgs[@]}" 
-
-   # sudo -u $real_user yay -S --noconfirm "${yaypkgs[@]}" || true
+    sudo -u $real_user yay -S --noconfirm visual-studio-code-bin spotify wlogout visual-studio-code-bin 
 
     cd ~ && git clone https://github.com/Typhoonz0/dots.git && cd dots || exit
 
@@ -80,7 +83,7 @@ default() {
 }
 
 finalize() {
-    [[ "$dechoice" =~ ^[13]$  ]] && echo "exec Hyprland" >> ~/.zshrc
+    [[ "$dechoice" = 2  ]] && echo "exec Hyprland" >> ~/.zshrc
     [[ "$dechoice" =~ ^[13]$  ]] && systemctl enable gdm &>/dev/null
     echo "Finished! Press ENTER to reboot."
     read 
