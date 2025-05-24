@@ -29,7 +29,7 @@ minimal() {
 
 default() {
     essentialpkgs=(git firefox ghostty neovim lf)
-    suggestedpkgs=(libreoffice-still btop steam fastfetch tmux cmatrix lolcat discord gparted nautilus firefox swaybg waybar blueberry gnome-shell-extensions)
+    suggestedpkgs=(libreoffice-still btop fastfetch tmux cmatrix lolcat discord gparted nautilus firefox swaybg waybar blueberry gnome-shell-extensions)
     declare -A map=( [fastfetch]=fastfetch [ghostty]=ghostty [hypr]=hyprland [nvim]=neovim [rofi]=rofi [tmux]=tmux [waybar]=waybar [zsh]=zsh )
 
     pacman -Sy --noconfirm
@@ -60,11 +60,11 @@ default() {
     #  --- Firefox binary not installed yet, appearently? Hopefully this works ---
     git clone https://github.com/Typhoonz0/archfr
     for file in archfr/firefox-ext*; do
-        firefox "$file"
+        sudo -u $real_user firefox "$file"
     done
     
     curl -LO https://github.com/catppuccin/vscode/releases/download/catppuccin-vsc-v3.17.0/catppuccin-vsc-3.17.0.vsix
-    code --install-extension catppuccin-vsc-3.17.0.vsix
+    sudo -u $real_user code --install-extension catppuccin-vsc-3.17.0.vsix
     
     curl -LO https://extensions.gnome.org/extension-data/dash-to-dockmicxgx.gmail.com.v71.shell-extension.zip
     curl -LO https://github.com/aunetx/blur-my-shell/releases/download/v68-2/blur-my-shell@aunetx.shell-extension.zip
