@@ -42,13 +42,13 @@ default() {
 
     env -i HOME="$HOME" USER="$real_user" LOGNAME="$real_user" \
     runuser -u "$real_user" -- makepkg -si --noconfirm
-    cd ~   # Now this resolves to /home/$real_user
+    cd /home/$real_user   # Now this resolves to /home/$real_user
     env -i HOME="$user_home" USER="$real_user" LOGNAME="$real_user" \
         runuser -u "$real_user" -- yay -S --noconfirm 
     
     sudo -u $real_user yay -S --noconfirm visual-studio-code-bin spotify wlogout visual-studio-code-bin 
 
-    cd ~ && git clone https://github.com/Typhoonz0/dots.git && cd dots || exit
+    cd /home/$real_user && git clone https://github.com/Typhoonz0/dots.git && cd dots || exit
 
     for dir in "${!map[@]}"; do
         mkdir -p "$HOME/.config/$dir"
