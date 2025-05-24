@@ -3,7 +3,7 @@
 essentialpkgs=(git firefox ghostty neovim lf)
 suggestedpkgs=(libreoffice-still btop steam fastfetch tmux cmatrix lolcat discord gparted nautilus firefox swaybg blueberry gnome-shell-extensions)
 yaypkgs=(visual-studio-code-bin spotify uxplay wlogout)
-finalchoice="gnome hyprland"
+finalchoice=(gnome hyprland)
 real_user="${SUDO_USER:-$(logname)}"
 export HOME="/home/$real_user"
 minimal() {
@@ -18,27 +18,27 @@ minimal() {
 "
     read -rp "Choice: " dechoice; dechoice=${dechoice:-3}
     case "$dechoice" in
-        1) finalchoice="gnome" ;;
-        2) finalchoice="hyprland" ;;
-        3) finalchoice="gnome hyprland" ;;
-        *) finalchoice="none" ;;
+        1) finalchoice=(gnome) ;;
+        2) finalchoice=(hyprland) ;;
+        3) finalchoice=(gnome hyprland) ;;
+        *) finalchoice=(none) ;;
     esac
     pacman -S --noconfirm "${essentialpkgs[@]}" || true
-    [[ "$finalchoice" != "none" ]] && pacman -S --noconfirm "${finalchoice[@]}" || true
+    [[ "$finalchoice" != "none" ]] && pacman -S --noconfirm "${finalchoice[@]}" 
 }
 
 default() {
     declare -A map=( [fastfetch]=fastfetch [ghostty]=ghostty [hypr]=hyprland [nvim]=neovim [rofi]=rofi [tmux]=tmux [waybar]=waybar [zsh]=zsh )
 
     pacman -Sy --noconfirm
-    pacman -S --noconfirm "${essentialpkgs[@]}" "${suggestedpkgs[@]}" || true
+    pacman -S --noconfirm "${essentialpkgs[@]}" "${suggestedpkgs[@]}"
     pacman -S --noconfirm "$finalchoice"
     pacman -S --needed --noconfirm git base-devel
-    git clone https://aur.archlinux.org/yay-bin.git && cd yay-bin && makepkg -si --noconfirm
-    cd 
-
+    git clone https://aur.archlinux.org/yay-bin.git && cd yay-bin 
     cd ~   # Now this resolves to /home/$real_user
-
+    env -i HOME="$HOME" USER="$real_user" LOGNAME="$real_user" \
+    runuser -u "$real_user" -- makepkg -si --noconfirm
+    
     env -i HOME="$HOME" USER="$real_user" LOGNAME="$real_user" \
     runuser -u "$real_user" -- yay -S --noconfirm "${yaypkgs[@]}" 
 
