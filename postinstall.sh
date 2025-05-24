@@ -33,7 +33,8 @@ default() {
     declare -A map=( [fastfetch]=fastfetch [ghostty]=ghostty [hypr]=hyprland [nvim]=neovim [rofi]=rofi [tmux]=tmux [waybar]=waybar [zsh]=zsh )
 
     pacman -Sy --noconfirm
-    pacman -S --noconfirm "${essentialpkgs[@]}" "${suggestedpkgs[@]}"
+    pacman -S "${essentialpkgs[@]}" 
+    pacman -S "${suggestedpkgs[@]}"
     pacman -S --noconfirm "${finalchoice[@]}"
     pacman -S --needed --noconfirm git base-devel
     
