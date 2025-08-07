@@ -56,39 +56,12 @@ default() {
     done
 
     cp .zshrc ~/
-
-    #  --- Firefox binary not installed yet, appearently? Hopefully this works ---
-    # git clone https://github.com/Typhoonz0/archfr
-    # for file in archfr/firefox-ext*; do
-    #    sudo -u $real_user firefox "$file"
-    # done
-    
-    curl -LO https://github.com/catppuccin/vscode/releases/download/catppuccin-vsc-v3.17.0/catppuccin-vsc-3.17.0.vsix
-    sudo -u $real_user code --install-extension catppuccin-vsc-3.17.0.vsix
-    tee gnome-shell.sh <<EOF
-#!/usr/bin/bash
-curl -LO https://extensions.gnome.org/extension-data/dash-to-dockmicxgx.gmail.com.v71.shell-extension.zip
-curl -LO https://github.com/aunetx/blur-my-shell/releases/download/v68-2/blur-my-shell@aunetx.shell-extension.zip
-curl -LO https://github.com/tiagoporsch/restartto/releases/download/8/restartto@tiagoporsch.github.io.shell-extension.zip
-gnome-extensions install ./custom-hot-corners-extendedG-dH.github.com.v11.shell-extension.zip
-gnome-extensions install ./dash-to-dockmicxgx.gmail.com.v71.shell-extension.zip
-gnome-extensions install ./restartto@tiagoporsch.github.io.shell-extension.zip
-
-gsettings set org.gnome.desktop.background picture-uri file:///~/.config/hypr/dunes.jpg
-gsettings set org.gnome.desktop.wm.preferences button-layout :minimize,maximize,close
-gsettings set org.gnome.shell.extensions.system-monitor show-cpu true
-gsettings set org.gnome.shell.extensions.system-monitor show-memory true
-gsettings set org.gnome.shell.extensions.system-monitor show-swap true
-blur-my-shell@aunetx.shell-extension.zip dash-to-dockmicxgx.gmail.com.v71.shell-extension.zip
-EOF
-    chmod +x gnome-shell.sh
-    cd ~ && rm -rf archfr yay-bin catppuccin-vsc-3.17.0.vsix
-
 }
 
 finalize() {
     [[ "$dechoice" = 2  ]] && echo "exec Hyprland" >> ~/.zshrc
-    [[ "$dechoice" =~ ^[13]$  ]] && systemctl enable gdm &>/dev/null
+    [[ "$dechoice" =~ ^[13]$  ]] && systemctl enable gdm &>/dev/null 
+    [[ "$dechoice" =~ ^[13]$  ]] && rm .zshrc postinstall.sh 
     echo "Finished! Press ENTER to reboot."
     read 
     reboot now 
@@ -116,5 +89,5 @@ read -rp "Choice: " choice; choice=${choice:-0}
 case "$choice" in
     1) minimal; finalize ;;
     2) default; finalize ;;
-    *) echo "Exiting script."; exit ;;
+    *) echo "Exiting script."; rm .zshrc postinstall.sh ; exit ;;
 esac
