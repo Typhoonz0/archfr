@@ -4,6 +4,7 @@ set -euo pipefail
 # === CONFIG ===
 HOSTNAME="archlinux"
 USERNAME="user"
+PASSWORD="root"
 DOTFILES_REPO="https://github.com/Typhoonz0/dots.git"
 
 # Official packages
@@ -66,7 +67,7 @@ partition_menu() {
   echo "1) Wipe disk (use cfdisk interactively)"
   echo "2) Use existing partition (manual selection)"
   read -rp "Choice [1-2]: " choice
-
+  
   case "$choice" in
     1)
       lsblk
@@ -119,7 +120,7 @@ chroot_setup() {
     sed -i 's/^#en_US.UTF-8/en_US.UTF-8/' /etc/locale.gen
     locale-gen
     echo "LANG=en_US.UTF-8" > /etc/locale.conf
-
+    echo "$USERNAME:$PASSWORD" | chpasswd
     useradd -m -G wheel -s /bin/bash "$USERNAME" || true
     echo "$USERNAME ALL=(ALL) ALL" >> /etc/sudoers
 
