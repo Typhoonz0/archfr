@@ -40,6 +40,7 @@ CUSTOM_PKGS=(
     waybar
     zsh
 )
+
 # AUR packages
 AUR_PKGS=(
   visual-studio-code-bin
@@ -64,7 +65,7 @@ validate_network() {
 partition_menu() {
   echo "[*] Select partitioning method:"
   echo "1) Wipe disk (use cfdisk interactively)"
-  echo "2) Use existing partition (manual selection)"
+  echo "2) Use existing partitions (manual selection)"
   read -rp "Choice [1-2]: " choice
   
   case "$choice" in
@@ -73,29 +74,29 @@ partition_menu() {
       read -rp "Enter target disk (e.g. /dev/sda): " disk
       echo "[*] Launching cfdisk on $disk..."
       cfdisk "$disk"
-      echo "[*] Partitioning done. Please remember your root partition!"
+      echo "[*] Partitioning done. Please remember your root and EFI partitions!"
       ;;
     2)
-      lsblk
-      read -rp "Enter existing root partition (e.g. /dev/sda2): " partition
-      ROOT_PART="$partition"
       ;;
     *)
       echo "Invalid choice."
       exit 1
       ;;
   esac
-}
 
-format_and_mount() {
-  if [[ -z "${ROOT_PART:-}" ]]; then
-    lsblk
-    read -rp "Enter root partition to format (e.g. /dev/sda2): " ROOT_PART
-  fi
-  echo "[*] Formatting $ROOT_PART as ext4..."
+  lsblk
+  read -rp "Enter root partition (e.g. /dev/sda2): " ROOT_PART
+  read -rp "Enter EFI partition (e.g. /dev/sda1): " EFI_PART
+
+  echo "[*] Formatting root partition $ROOT_PART as ext4..."
   mkfs.ext4 -F "$ROOT_PART"
-  echo "[*] Mounting $ROOT_PART to /mnt..."
+  echo "[*] Formatting EFI partition $EFI_PART as FAT32..."
+  mkfs.fat -F32 "$EFI_PART"
+
+  echo "[*] Mounting partitions..."
   mount "$ROOT_PART" /mnt
+  mkdir -p /mnt/boot/efi
+  mount "$EFI_PART" /mnt/boot/efi
 }
 
 install_base() {
@@ -109,7 +110,7 @@ gen_fstab() {
 }
 
 chroot_setup() {
-  echo "[*] Chrooting into system..."
+  echo "[*] Setting up system in chroot..."
   arch-chroot /mnt /bin/bash <<EOF
     set -euo pipefail
 
@@ -119,11 +120,24 @@ chroot_setup() {
     sed -i 's/^#en_US.UTF-8/en_US.UTF-8/' /etc/locale.gen
     locale-gen
     echo "LANG=en_US.UTF-8" > /etc/locale.conf
+
     useradd -m -G wheel -s /bin/bash "$USERNAME" || true
     echo "$USERNAME:$PASSWORD" | chpasswd
     echo "$USERNAME ALL=(ALL) ALL" >> /etc/sudoers
 
     systemctl enable NetworkManager
+EOF
+}
+
+install_grub() {
+  echo "[*] Installing GRUB bootloader..."
+  arch-chroot /mnt /bin/bash <<EOF
+    set -euo pipefail
+
+    pacman -S --noconfirm grub efibootmgr
+
+    grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
+    grub-mkconfig -o /boot/grub/grub.cfg
 EOF
 }
 
@@ -169,15 +183,15 @@ INNER
 EOF
 }
 
-
 # === MAIN ===
+echo "version 0.0.1"
 check_root
 validate_network
 partition_menu
-format_and_mount
 install_base
 gen_fstab
 chroot_setup
+install_grub
 install_yay
 install_dotfiles
 
