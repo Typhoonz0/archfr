@@ -119,8 +119,8 @@ chroot_setup() {
     sed -i 's/^#en_US.UTF-8/en_US.UTF-8/' /etc/locale.gen
     locale-gen
     echo "LANG=en_US.UTF-8" > /etc/locale.conf
-    echo "$USERNAME:$PASSWORD" | chpasswd
     useradd -m -G wheel -s /bin/bash "$USERNAME" || true
+    echo "$USERNAME:$PASSWORD" | chpasswd
     echo "$USERNAME ALL=(ALL) ALL" >> /etc/sudoers
 
     systemctl enable NetworkManager
