@@ -38,7 +38,6 @@ CUSTOM_PKGS=(
     swaybg
     tmux
     waybar
-    yay
     zsh
 )
 # AUR packages
