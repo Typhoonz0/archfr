@@ -242,7 +242,7 @@ chroot_setup() {
     echo "root:$ROOTPASS" | chpasswd
     echo "$USERNAME ALL=(ALL) ALL" >> /etc/sudoers
 
-    systemctl enable NetworkManager
+    systemctl enable NetworkManager gdm
 EOF
 }
 
@@ -296,12 +296,13 @@ install_dotfiles() {
       if [[ -f .zshrc ]]; then
         cp .zshrc ~/.zshrc
       fi
+      chsh -s /usr/bin/zsh
 INNER
 EOF
 }
 
 # === MAIN ===
-echo "version 0.0.2"
+echo "version 0.0.3"
 get_info
 checks
 validate_network
